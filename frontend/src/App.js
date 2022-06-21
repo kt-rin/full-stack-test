@@ -13,18 +13,67 @@ import { useEffect, useState } from "react";
 import axios from 'axios';
 
 function App() {
+  const [accessToken, setAccessToken] = useState('')
+  const [searchItemName, setSearchItemName] = useState('')
+
+  const apiUrl = 'http://localhost:8080/api/v1'
+
+  const authAxios = axios.create({
+    baseURL: apiUrl,
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  const getAllData = async () => {
+
+    try {
+      const { data: result } = await axios.get(
+        `${apiUrl}/content/allData`);
+
+      alert("Get Show Data Success!")
+      console.log({ result });
+
+    } catch (error) {
+      alert("Get Show Data Fail!")
+      console.log(error.message);
+    }
+  };
+
+  const search = async () => {
+    const query = {
+      item_name: searchItemName
+    }
+
+    try {
+      const { data: result } = await axios.get(
+        `${apiUrl}/content/search`, {
+        params: { ...query }
+      });
+
+      alert("Search Data Success!")
+      console.log({ result });
+
+    } catch (error) {
+      alert("Search Data Item Not Found!")
+      console.log(error.message);
+    }
+  };
 
   const connectWallet = async () => {
-    const query = {
+    const body = {
       username: 'admin',
       password: '12345'
     }
 
     try {
       const { data: result } = await axios.post(
-        `http://localhost:8080/api/v1/authen/connect_wallet`,
-        { params: { ...query } }
-      );
+        `${apiUrl}/authen/connect_wallet`, {
+        body
+      });
+
+
+      setAccessToken(result.token)
 
       alert("Connect Wallet Success!")
       console.log({ result });
@@ -34,6 +83,32 @@ function App() {
       console.log(error.message);
     }
   };
+
+  const placeABid = async () => {
+    const item_id = '1'
+    const body = {
+      username: 'admin',
+      price: '5000'
+    }
+
+    try {
+
+      const { data: result } = await authAxios.put(`/content/place_bid/${item_id}`, body);
+
+      alert("Place A Bid Success!")
+      console.log({ result });
+
+    } catch (error) {
+      alert("Place A Bid Fail.. Please Connect Wallet First!")
+      console.log(error.message);
+    }
+  };
+
+  useEffect(() => {
+    getAllData()
+
+  }, [])
+
 
   return (
     <>
@@ -51,6 +126,14 @@ function App() {
                     id="search"
                     name="search"
                     placeholder='search'
+                    onKeyPress={e => {
+                      if (e.key === 'Enter') {
+                        search()
+                      }
+                    }}
+                    onChange={(e) => {
+                      setSearchItemName(e.target.value)
+                    }}
                   />
                 </div>
 
@@ -120,7 +203,13 @@ function App() {
                     </table>
 
                     <div className="cta">
-                      <a href="#" className="btn">Place a bid</a>
+                      <a
+                        href="#"
+                        className="btn"
+                        onClick={placeABid}
+                      >
+                        Place a bid
+                      </a>
                       <div className='avatar-group'>
                         <img src={avatar1} alt="avatar1" className='avatar' />
                         <img src={avatar2} alt="avatar2" className='avatar' />
