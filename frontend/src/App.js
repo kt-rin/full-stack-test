@@ -31,11 +31,11 @@ function App() {
       const { data: result } = await axios.get(
         `${apiUrl}/content/allData`);
 
-      alert("Get Show Data Success!")
+      // alert("Get Show Data Success!")
       console.log({ result });
 
     } catch (error) {
-      alert("Get Show Data Fail!")
+      //alert("Get Show Data Fail!")
       console.log(error.message);
     }
   };
@@ -68,9 +68,9 @@ function App() {
 
     try {
       const { data: result } = await axios.post(
-        `${apiUrl}/authen/connect_wallet`, {
+        `${apiUrl}/authen/connect_wallet`,
         body
-      });
+      );
 
 
       setAccessToken(result.token)
